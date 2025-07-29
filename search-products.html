@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Search</title>
+    <style>
+        #results {
+            border: 1px solid #ccc;
+            max-width: 300px;
+            margin-top: 5px;
+            display: none;
+            position: absolute;
+            background: #fff;
+        }
+        .result-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-item:hover {
+            background: #f0f0f0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <input type="text" id="search" placeholder="Search for products..." autocomplete="off">
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('search');
+        const resultsDiv = document.getElementById('results');
+
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim();
+            if (query.length > 0) {
+                fetch(`search.php?query=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        resultsDiv.innerHTML = '';
+                        if (data.length > 0) {
+                            data.forEach(product => {
+                                const item = document.createElement('div');
+                                item.className = 'result-item';
+                                item.textContent = product.name;
+                                resultsDiv.appendChild(item);
+                            });
+                            resultsDiv.style.display = 'block';
+                        } else {
+                            resultsDiv.style.display = 'none';
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            } else {
+                resultsDiv.style.display = 'none';
+            }
+        });
+
+        // Hide results when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!searchInput.contains(event.target) && !resultsDiv.contains(event.target)) {
+                resultsDiv.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
